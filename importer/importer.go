@@ -3,7 +3,6 @@ package importer
 import (
 	"database/sql"
 	"encoding/csv"
-	"github.com/mlapshin/fhirterm/db"
 	"io"
 	"io/ioutil"
 	"log"
@@ -32,7 +31,7 @@ func unpackZipArchive(zipPath string, callback unzipCallback) error {
 	return callback(tempPath)
 }
 
-func importCsv(db *db.DB, csvPath string, comma rune, fpr int, insertStmt string) (int, error) {
+func importCsv(db *sql.DB, csvPath string, comma rune, fpr int, insertStmt string) (int, error) {
 	file, err := os.Open(csvPath)
 
 	if err != nil {

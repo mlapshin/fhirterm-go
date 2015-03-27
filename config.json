@@ -1,0 +1,10 @@
+{
+  "http_port": 3128,
+  "http_host": "",
+  "http_cors_allowed_origins": ["*"],
+  "databases": ["fhirterm.db3"],
+  "storage": {
+    "type": "rest",
+    "base_url": "http://localhost:9292/"
+  }
+}

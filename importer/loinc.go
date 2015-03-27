@@ -1,8 +1,8 @@
 package importer
 
 import (
+	"database/sql"
 	"fmt"
-	fdb "github.com/mlapshin/fhirterm/db"
 	"log"
 	"path"
 )
@@ -80,7 +80,7 @@ VALUES
 
 const loincColumnsCount = 48
 
-func createLoincTable(db *fdb.DB) error {
+func createLoincTable(db *sql.DB) error {
 	_, err := db.Exec("DROP TABLE IF EXISTS loinc_loincs")
 	if err != nil {
 		return err
@@ -95,7 +95,7 @@ func createLoincTable(db *fdb.DB) error {
 	return nil
 }
 
-func importLoincCsv(db *fdb.DB, csvPath string) error {
+func importLoincCsv(db *sql.DB, csvPath string) error {
 	insertedRows, err := importCsv(db, csvPath, ',', loincColumnsCount, insertRowStmt)
 
 	if err != nil {
@@ -106,7 +106,7 @@ func importLoincCsv(db *fdb.DB, csvPath string) error {
 	return nil
 }
 
-func ImportLoinc(db *fdb.DB, filePath string) error {
+func ImportLoinc(db *sql.DB, filePath string) error {
 	log.Printf("Importing LOINC dataset")
 
 	err := unpackZipArchive(filePath, func(p string) error {

@@ -6,7 +6,6 @@ import (
 	"database/sql"
 	"encoding/binary"
 	"fmt"
-	"github.com/mlapshin/fhirterm/db"
 	"log"
 	"os"
 	"path/filepath"
@@ -168,7 +167,7 @@ func findFile(files []string, rexp string) (string, bool) {
 	return "", false
 }
 
-func createSnomedTables(db *db.DB) error {
+func createSnomedTables(db *sql.DB) error {
 	for tblName, stmt := range createTblStmts {
 		_, err := db.Exec("DROP TABLE IF EXISTS " + tblName)
 		if err != nil {
@@ -186,7 +185,7 @@ func createSnomedTables(db *db.DB) error {
 	return nil
 }
 
-func importSnomedConcepts(db *db.DB, files []string) error {
+func importSnomedConcepts(db *sql.DB, files []string) error {
 	csvPath, found := findFile(files, "SnomedCT_Release_INT_\\d{8}/RF2Release/Full/Terminology/sct2_Concept_Full_INT_\\d{8}.txt$")
 	log.Printf("Importing %s", csvPath)
 
@@ -205,7 +204,7 @@ func importSnomedConcepts(db *db.DB, files []string) error {
 	return nil
 }
 
-func importSnomedRelationships(db *db.DB, files []string) error {
+func importSnomedRelationships(db *sql.DB, files []string) error {
 	csvPath, found := findFile(files, "SnomedCT_Release_INT_\\d{8}/RF2Release/Full/Terminology/sct2_Relationship_Full_INT_\\d{8}.txt$")
 	log.Printf("Importing %s", csvPath)
 
@@ -247,7 +246,7 @@ func escapeQuotes(f string) error {
 	return nil
 }
 
-func importSnomedDescriptions(db *db.DB, files []string) error {
+func importSnomedDescriptions(db *sql.DB, files []string) error {
 	csvPath, found := findFile(files, "SnomedCT_Release_INT_\\d{8}/RF2Release/Full/Terminology/sct2_Description_Full-en_INT_\\d{8}.txt$")
 	log.Printf("Importing %s", csvPath)
 
@@ -270,7 +269,7 @@ func importSnomedDescriptions(db *db.DB, files []string) error {
 	return nil
 }
 
-func execStmt(db *db.DB, stmt string, logMessage string) error {
+func execStmt(db *sql.DB, stmt string, logMessage string) error {
 	if len(logMessage) > 0 {
 		log.Print(logMessage)
 	}
@@ -311,10 +310,10 @@ func getAncestorsDescendants(stmt *sql.Stmt, slice *[]int64) {
 
 }
 
-func prewalkSnomedGraph(db *db.DB) error {
+func prewalkSnomedGraph(db *sql.DB) error {
 	log.Print("Prewalking SNOMED-CT graph...")
 
-	rows, err := db.Db.Query(`SELECT source_id FROM snomed_is_a_relationships
+	rows, err := db.Query(`SELECT source_id FROM snomed_is_a_relationships
 														UNION
 														SELECT destination_id FROM snomed_is_a_relationships`)
 	if err != nil {
@@ -413,7 +412,7 @@ func prewalkSnomedGraph(db *db.DB) error {
 	return nil
 }
 
-func ImportSnomed(db *db.DB, filePath string) error {
+func ImportSnomed(db *sql.DB, filePath string) error {
 	log.Printf("Importing SNOMED-CT dataset")
 
 	error := unpackZipArchive(filePath, func(p string) error {
