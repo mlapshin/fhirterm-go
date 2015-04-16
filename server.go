@@ -31,8 +31,8 @@ working. Further configuration is required. Normally, this page should not be pu
 
 <p><em>Thank you for using fhirterm.</em></p>
 </body>
-</html>
-`
+</html>`
+
 	fmt.Fprint(w, page)
 }
 
@@ -42,10 +42,9 @@ func ValueSetExpand(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 	var display string
 	row.Scan(&display)
 
-	storage := GetStorage()
-	vs, _ := storage.FindValueSetById(ps.ByName("id"))
+	vs, _ := ExpandValueSet(ps.ByName("id"))
 
-	fmt.Fprintf(w, "hello, %s!\n%s", ps.ByName("id"), vs)
+	fmt.Fprintf(w, "hello, %s!\n%s", ps.ByName("id"), vs.Identifier)
 	fmt.Fprintf(w, "%s", display)
 }
 

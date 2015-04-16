@@ -16,7 +16,7 @@ type RestStorage struct {
 
 type HttpParams map[string]string
 
-func (this RestStorage) request(method string, u string, params HttpParams) (*ValueSet, error) {
+func (this RestStorage) request(method string, u string, params HttpParams) ([]byte, error) {
 	urlParsed, _ := url.Parse(u)
 
 	values := url.Values{}
@@ -41,8 +41,17 @@ func (this RestStorage) request(method string, u string, params HttpParams) (*Va
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
+	return body, err
+}
+
+func (this RestStorage) FindValueSetById(id string) (*ValueSet, error) {
+	body, err := this.request(
+		"GET",
+		"/ValueSet/"+url.QueryEscape(id),
+		HttpParams{})
+
 	if err != nil {
-		return nil, err
+		log.Printf("Error: %s", err)
 	}
 
 	var vs ValueSet
@@ -52,19 +61,6 @@ func (this RestStorage) request(method string, u string, params HttpParams) (*Va
 	}
 
 	return &vs, nil
-}
-
-func (this RestStorage) FindValueSetById(id string) (*ValueSet, error) {
-	vs, err := this.request(
-		"GET",
-		"/ValueSet/"+url.QueryEscape(id),
-		HttpParams{})
-
-	if err != nil {
-		log.Printf("Error: %s", err)
-	}
-
-	return vs, nil
 }
 
 func MakeRestStorage(cfg JsonObject) (Storage, error) {
